@@ -62,3 +62,59 @@ function CAddonLeagueOfLegends:OnThink()
 	end
 	return 1
 end
+
+--[[
+  This function is called once and only once for every player when they spawn into the game for the first time.  It is also called
+  if the player's hero is replaced with a new hero for any reason.  This function is useful for initializing heroes, such as adding
+  levels, changing the starting gold, removing/adding abilities, adding physics, etc.
+
+  The hero parameter is the hero entity that just spawned in
+]]
+function CAddonLeagueOfLegends:OnHeroInGame(hero)
+  --print("[BAREBONES] Hero spawned in game for first time -- " .. hero:GetUnitName())
+
+  --[[ Multiteam configuration, currently unfinished
+
+  local team = "team1"
+  local playerID = hero:GetPlayerID()
+  if playerID > 3 then
+    team = "team2"
+  end
+  print("setting " .. playerID .. " to team: " .. team)
+  MultiTeam:SetPlayerTeam(playerID, team)]]
+
+  -- This line for example will set the starting gold of every hero to 500 unreliable gold
+  hero:SetGold(500, false)
+
+  -- These lines will create an item and add it to the player, effectively ensuring they start with the item
+  --local item = CreateItem("item_multiteam_action", hero, hero)
+  --hero:AddItem(item)
+
+  --[[ --These lines if uncommented will replace the W ability of any hero that loads into the game
+    --with the "example_ability" ability
+
+  local abil = hero:GetAbilityByIndex(1)
+  hero:RemoveAbility(abil:GetAbilityName())
+  hero:AddAbility("example_ability")]]
+
+  --[[Move to this system after
+  local kvpairs = LoadKeyValues("scripts/npc/npc_abilities_custom.txt")
+  PrintTable(kvpairs)
+  ]]
+  for i=1,24 do
+    hero:HeroLevelUp(false)
+  end
+
+  local i = 0
+  local ability = hero:GetAbilityByIndex(i)
+
+  repeat
+    if ability:GetSpecialValueFor("champion_passive") == 1 then
+        ability:SetLevel(1)
+        print("Detected champion passive: " .. ability:GetAbilityName())
+    end
+
+    i = i + 1
+    ability = hero:GetAbilityByIndex(i)
+  until ability == nil
+end
